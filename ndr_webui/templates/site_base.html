@@ -2,18 +2,19 @@
 {% block localnav %}
 
 {% set site_navigation_bar = [
-    ( url_for('site_overview', site_id=site_id), 'overview', 'Site Overview'),
-    ( url_for('site_nmap', site_id=site_id), 'nmap', 'Network Scans'),
-    ( url_for('site_syslog', site_id=site_id), 'logs', 'Logs'),
-    ( '/nonexist', 'snort_traffic', 'SNORT Traffic Reports'),
-    ( '/nonexist', 'alerts', 'Alerts')
+    ( url_for('site_overview', site_id=site_id), 'overview', 'Site Overview', false),
+    ( url_for('site_overview', site_id=site_id), 'recorders', 'Recorders', true),
+    ( '/nonexist', 'alerts', 'Alerts', true),
+    ( url_for('site_nmap', site_id=site_id), 'nmap', 'Network Scans', false),
+    ( url_for('site_syslog', site_id=site_id), 'logs', 'Logs', false),
+    ( '/nonexist', 'snort_traffic', 'SNORT Traffic Reports', false),
 ] -%}
 
 {% set active_page = active_page|default('overview') -%}
 
 <ul class="nav nav-sidebar">
-     {% for href, id, caption in site_navigation_bar %}
-     <li{% if id == active_page %} class="active"{% endif%}><a href="{{ href|e }}">{{ caption|e }}</a>
+     {% for href, id, caption, recessed in site_navigation_bar %}
+     <li{% if id == active_page %} class="active"{% endif%} {%if recessed == true %} style="margin-left:3em" {% endif %}><a href="{{ href|e }}">{{ caption|e }}</a>
     </li>
     {% endfor %}
 </ul>
