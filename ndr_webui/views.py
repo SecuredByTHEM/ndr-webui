@@ -1,25 +1,22 @@
 import ndr_webui
 
 from flask import render_template
-from ndr_webui import app
+from flask_login import login_required
 
+from ndr_webui import app
 
 @app.route('/')
 @app.route('/index')
+@login_required
 def index():
     ndr_webui.config.get_ndr_server_config()
     return render_template('index.html',
                            title='Home')
 
-# Login
-@app.route('/login')
-def login():
-    return render_template('login.html',
-                           title='Login')
-
 # Site Overview
 
 @app.route('/site/<site_id>')
+@login_required
 def site_overview(site_id):
     return render_template('index.html',
                            title='Site Overview',
@@ -28,6 +25,7 @@ def site_overview(site_id):
 
 # Site Syslog Info
 @app.route('/site/<site_id>/logs')
+@login_required
 def site_syslog(site_id):
     return render_template('syslog.html',
                            title='Site Logs',
@@ -36,6 +34,7 @@ def site_syslog(site_id):
 
 
 @app.route('/site/<site_id>/nmap')
+@login_required
 def site_nmap(site_id):
     return render_template('nmap.html',
                            title='Site NMAP Information',
