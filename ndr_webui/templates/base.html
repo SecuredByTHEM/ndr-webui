@@ -55,19 +55,15 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
+          <!-- <ul class="nav nav-sidebar">
             <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
             <li><a href="#">Reports</a></li>
             <li><a href="#">Analytics</a></li>
             <li><a href="#">Export</a></li>
-          </ul>
-          <ul class="nav nav-sidebar">
-            <li><a href="">Syslog Reports</a></li>
-            <li><a href="">NMAP Scans</a></li>
-            <li><a href="">SNORT Traffic Reports</a></li>
-            <li><a href="">Events</a></li>
-            <li><a href="">Alerts</a></li>
-          </ul>
+          </ul> -->
+          {% block localnav %}
+          {% endblock %}
+
         </div>
         {% block content %}{% endblock %}
     <!-- Bootstrap core JavaScript
