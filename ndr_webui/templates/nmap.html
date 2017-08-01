@@ -1,8 +1,177 @@
-{% extends "site_base.html" %}
-{% block content %}
+{% extends "site_base.html" %} {% block content %}
 
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <h1 class="page-header">NMAP Information</h1>
+    <div class="row">
+        <div class="col-sm-6">
+            <h2>Host Information</h2>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>Human Name</td>
+                            <td><i>None</i></td>
+                            <tr>
+                                <td>IP Address</td>
+                                <td><a href="#">192.168.1.1</a></td>
+                            </tr>
+                            <tr>
+                                <td>MAC Address</td>
+                                <td><a href="#">AA:BB:CC:DD:EE:FF</a></td>
+                            </tr>
+                            <tr>
+                                <td>OS Detection Best Guess</td>
+                                <td>Windows 10</td>
+                            </tr>
+                            <tr>
+                                <td>In Baseline</td>
+                                <td>True</td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <h2>DNS Information</h2>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>test.them.com</td>
+                        </tr>
+                        <tr>
+                            <td>test2.them.com</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <h2>Open Ports</h2>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <td>Port</td>
+                        <td>Protocol</td>
+                        <td>Standard Name</td>
+                        <td>Product</td>
+                        <td>Version</td>
+                        <td>Baseline</td>
+                    </thead>
+                    <tbody>
+                        <tr style="background-color: yellow; color: black">
+                            <td>22</td>
+                            <td>TCP</td>
+                            <td>SSH</td>
+                            <td>OpenSSH</td>
+                            <td>Ubuntu 8.2.2</td>
+                            <td><a href="#">Add</a></td>
+                        </tr>
+                        <tr>
+                            <td>25</td>
+                            <td>TCP</td>
+                            <td>SMTP</td>
+                            <td>Postfix</td>
+                            <td>8.2.1</td>
+                            <td><a href="#">Remove</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <h2>Script Output</h2>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <td>Script Name</td>
+                        <td>View</td>
+                        <tbody>
+                            <tr>
+                                <td>nmap-vulerability-heartbleed</td>
+                                <td><a href="#">View</a></td>
+                            </tr>
+                            <tr>
+                                <td>SSL Certificates</td>
+                                <td><a href="#">View</a></td>
+                            </tr>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <h2>Operating System Detection</h2>
+        <div class="table-responsive">
+            <form>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Select</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Microsoft Windows 10</td>
+                            <td><input type="radio" /></td>
+                        </tr>
+                        <tr>
+                            <td>Microsoft Windows 7</td>
+                            <td><input type="radio" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn btn-lg btn-primary" type="submit">Set</button>
+            </form>
+        </div>
+        <div class="row">
+            <h2>Notes</h2>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <td>Subject</td>
+                        <td>When</td>
+                        <td>View</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Upgraded Windows 10</td>
+                        <td>1 day go</td>
+                        <td><a href="#">View</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <form class="form-signin" action='/login' method='post'>
+                <div class="form-group row">
+                    <label for="ruleset" class="col-sm-2 col-form-label">Subject</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="ip_range" class="form-control" placeholder="Subject">
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <label for="ip_range" class="col-sm-2 col-form-label">Note</label>
+                    <div class="col-sm-10">
+                        <textarea type="text" name="ip_range" class="form-control"></textarea>
+                    </div>
+                </div>
+                    <button class="btn btn-lg btn-primary" type="submit">Add</button>
+
+            </form>
+
+
+        </div>
+    </div>
 </div>
 
-{% endblock %}
+    {% endblock %}

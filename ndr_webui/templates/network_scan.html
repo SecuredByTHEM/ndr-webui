@@ -1,0 +1,90 @@
+{% extends "site_base.html" %} {% block content %}
+
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h1 class="page-header">Network Scan Information</h1>
+    <!-- nmap block -->
+    <div class="row">
+
+        <label for="ruleset" class="col-sm-2 col-form-label">Timerange</label>
+        <select name="ruleset">
+                            <option value="a">24 Hours</option>
+                            <option value="a">48 Hours</option>
+                            <option value="a">1 Week</option>
+                            <option value="a">1 Month</option>
+                            <option value="a">Lifetime</option>
+                        </select>
+    </div>
+    <div class="row">
+
+        <label for="ruleset" class="col-sm-2 col-form-label">Advanced Timerange</label>
+        <!-- Placeholder - use a calendar widget -->
+        <input type="email" id="email" class="form-control" placeholder="From" required autofocus> to
+        <input type="email" id="email" class="form-control" placeholder="To" required autofocus>
+    </div>
+
+    <div class="col-sm-12">
+        <h2>NMAP System Scan Results</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Baseline Host</th>
+                        <th>Hostname</th>
+                        <th>IP Address</th>
+                        <th>MAC Address</th>
+                        <th>Operating System</th>
+                        <th>Last Seen</th>
+                        <th>Services Running</th>
+                        <th>View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background-color: red; color: white">
+                        <td><a href="#">Add</a></td>
+                        <td>test2</td>
+                        <td>192.168.2.2</td>
+                        <td>AA:BB:CC:DD:EE:FF</td>
+                        <td>Linux 3.x</td>
+                        <td>Now</td>
+                        <td>http</td>
+                        <td><a href="#">View</a></td>
+                    </tr>
+                    <tr style="background-color: red; color: white">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>9921/UDP</td>
+                        <td></td>
+                    </tr>
+                    <tr style="background-color: yellow; color: black">
+                        <td><a href="#">Remove</a></td>
+                        <td>android-unknownService</td>
+                        <td>192.168.2.10</td>
+                        <td>AA:BB:CC:DD:EE:11</td>
+                        <td>Android</td>
+                        <td>Now</td>
+                        <td>8082/TCP</td>
+                        <td><a href="#">View</a></td>
+                    </tr>
+
+                    <tr>
+                        <td><a href="#">Remove</a></td>
+                        <td>test</td>
+                        <td>192.168.2.3</td>
+                        <td>AA:BB:CC:DD:EE:11</td>
+                        <td>Windows</td>
+                        <td>Now</td>
+                        <td>
+                            <td><a href="#">View</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

@@ -14,7 +14,6 @@ def index():
                            title='Home')
 
 # Site Overview
-
 @app.route('/site/<site_id>')
 @login_required
 def site_overview(site_id):
@@ -40,3 +39,26 @@ def site_nmap(site_id):
                            title='Site NMAP Information',
                            site_id=site_id,
                            active_page='nmap')
+
+# Recorder Information
+@app.route('/recorder/<recorder_id>')
+@login_required
+def recorder_overview(recorder_id):
+    return render_template('recorder_details.html',
+                           title='Recorder Overview',
+                           recorder_id=recorder_id,
+                           active_page='overview')
+
+@app.route('/snort_rules/<recorder_id>')
+def snort_rule_overview(recorder_id):
+    return render_template('snort_rules.html',
+                           title='SNORT Rules Overview',
+                           recorder_id=recorder_id,
+                           active_page='overview')
+
+@app.route('/network_scan/<network_scan_id>')
+def network_scan_overview(network_scan_id):
+    return render_template('network_scan.html',
+                           title='Network Scan',
+                           network_scan_id=network_scan_id,
+                           active_page='overview')
