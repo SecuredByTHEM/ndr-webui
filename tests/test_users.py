@@ -64,8 +64,6 @@ class TestUsers(unittest.TestCase):
             "admin.activate_user", [cls._root_userid], cls._db_connection
         )
 
-        cls._db_connection.commit()
-
     @classmethod
     def tearDownClass(cls):
         cls._db_connection.rollback()
