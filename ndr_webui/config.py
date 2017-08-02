@@ -25,18 +25,38 @@
 
 import logging
 
+import ndr_webui
 import ndr_server
 from ndr_webui import app
+
 from flask import g
 
 def init_ndr_server_config():
     '''Sets up the NDR server config on first run if it's not already'''
-    g.nsc = ndr_server.Config(app.logger, app.config['NDR_SERVER_CONFIG'])
+    ndr_webui.NSC = ndr_server.Config(app.logger, app.config['NDR_SERVER_CONFIG'])
+    ndr_webui.NSC.logger.info("Initialized NSC Configuration")
 
 def get_ndr_server_config():
     '''Returns the NDR server configuration'''
-    if not hasattr(g, 'nsc'):
+    if ndr_webui.NSC is None:
         init_ndr_server_config()
 
-    return g.nsc
+    return ndr_webui.NSC
 
+def get_db_connection():
+    '''For the life of the process, we'll have one connection open'''
+
+    if not hasattr(g, 'db_conn'):
+        nsc = get_ndr_server_config()
+        g.db_conn = nsc.database.get_connection()
+
+    return g.db_conn
+
+@app.teardown_appcontext
+def db_teardown(error):
+    '''Commits or rolls back the DB if everything went as planned'''
+    if hasattr(g, 'db_conn'):
+        if error is None:
+            g.db_conn.commit()
+        else:
+            g.db_conn.rollback()

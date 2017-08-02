@@ -18,6 +18,8 @@ import unittest
 import logging
 import os
 
+import psycopg2
+
 import bcrypt
 import ndr_server
 import ndr_webui
@@ -27,42 +29,83 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_CONFIG = THIS_DIR + "/test_config.yml"
 
 ROOT_USERNAME = "admin"
-ROOT_PW = b"rootpassword"
+ROOT_PW = "rootpassword"
 ROOT_EMAIL = "test_user@themtests.com"
-ROOT_NAME = "Admin Test User"
+ROOT_REAL_NAME = "Admin Test User"
 
 class TestUsers(unittest.TestCase):
     '''Test user object behaviors'''
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         # Setup Flask basic configuration
         app.testing = True
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['NDR_SERVER_CONFIG'] = TEST_CONFIG
-        self.app = app.test_client()
+        cls.app = app.test_client()
 
-        self._nsc = ndr_server.Config(logging.getLogger(), TEST_CONFIG)
+        # Reinitialize NSC context with the test config
+        ndr_webui.config.init_ndr_server_config()
 
         # We need to process test messages, so override the base directory for
         # this test
-        self._db_connection = self._nsc.database.get_connection()
+        cls._db_connection = ndr_webui.NSC.database.get_connection()
 
-        crypted_pw = str(bcrypt.hashpw(ROOT_PW, bcrypt.gensalt()), 'utf-8')
+        crypted_pw = str(bcrypt.hashpw(bytes(ROOT_PW, 'utf-8'), bcrypt.gensalt()), 'utf-8')
 
         # We need to create the root user account which can manipulate the other ones
-        root_userid = self._nsc.database.run_procedure_fetchone(
-            "admin.create_user", [ROOT_USERNAME, ROOT_EMAIL, crypted_pw, ROOT_NAME],
-            self._db_connection
+        cls._root_userid = ndr_webui.NSC.database.run_procedure_fetchone(
+            "admin.create_user", [ROOT_USERNAME, ROOT_EMAIL, crypted_pw, ROOT_REAL_NAME],
+            cls._db_connection
         )[0]
 
         # Activate the user, then make it a super-admin
-        self._nsc.database.run_procedure(
-            "admin.activate_user", [root_userid], self._db_connection
+        ndr_webui.NSC.database.run_procedure(
+            "admin.activate_user", [cls._root_userid], cls._db_connection
         )
 
-    def tearDown(self):
-        self._db_connection.rollback()
-        self._nsc.database.close()
+        cls._db_connection.commit()
 
-    def test_create_user(self):
-        '''Tests creation of a user'''
+    @classmethod
+    def tearDownClass(cls):
+        cls._db_connection.rollback()
+        ndr_webui.NSC.database.close()
+
+    def test_get_admin_user(self):
+        '''Tests getting the admin user'''
+        admin_user = ndr_webui.User.get_by_id(ndr_webui.NSC,
+                                              self._root_userid,
+                                              db_conn=self._db_connection)
+
+        self.assertEqual(ROOT_USERNAME, admin_user.username)
+        self.assertEqual(ROOT_REAL_NAME, admin_user.real_name)
+        self.assertEqual(ROOT_EMAIL, admin_user.email)
+        self.assertTrue(admin_user.is_active())
+        self.assertTrue(admin_user.check_password(ROOT_PW))
+
+    def test_get_admin_user_by_email(self):
+        '''Tests getting a user by email address'''
+        admin_user = ndr_webui.User.get_by_email(ndr_webui.NSC,
+                                                 ROOT_EMAIL,
+                                                 db_conn=self._db_connection)
+
+        self.assertEqual(ROOT_USERNAME, admin_user.username)
+        self.assertEqual(ROOT_REAL_NAME, admin_user.real_name)
+        self.assertEqual(ROOT_EMAIL, admin_user.email)
+        self.assertTrue(admin_user.is_active())
+        self.assertTrue(admin_user.check_password(ROOT_PW))
+
+    def test_check_invalid_password(self):
+        '''Tests that we properly error out on invalid passwords'''
+        admin_user = ndr_webui.User.get_by_id(ndr_webui.NSC,
+                                              self._root_userid,
+                                              db_conn=self._db_connection)
+        self.assertFalse(admin_user.check_password("not the right PW"))
+
+    def test_invalid_user(self):
+        '''Tests that we properly error out on invalid passwords'''
+        self.assertRaises(psycopg2.InternalError,
+                          ndr_webui.User.get_by_id,
+                          ndr_webui.NSC,
+                          1337,
+                          db_conn=self._db_connection)
