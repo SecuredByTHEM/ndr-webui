@@ -29,11 +29,9 @@ import ndr_server
 from ndr_webui import app
 from flask import g
 
-NDR_SERVER_CONFIG = '/etc/ndr/ndr_server.yml'
-
 def init_ndr_server_config():
     '''Sets up the NDR server config on first run if it's not already'''
-    g.nsc = ndr_server.Config(app.logger, NDR_SERVER_CONFIG)
+    g.nsc = ndr_server.Config(app.logger, app.config['NDR_SERVER_CONFIG'])
 
 def get_ndr_server_config():
     '''Returns the NDR server configuration'''

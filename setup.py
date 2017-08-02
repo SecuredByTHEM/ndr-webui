@@ -26,7 +26,8 @@ setup(
         'psycopg2 >= 2.7',
         'flask',
         'flask-wtf',
-        'flask-login'
+        'flask-login',
+        'bcrypt'
     ],
     test_suite="tests"
 )
