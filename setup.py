@@ -24,7 +24,7 @@ setup(
     install_requires=[
         'ndr-server',
         'psycopg2 >= 2.7',
-        'flask',
+        'Flask >= 0.12.2',
         'flask-wtf',
         'flask-login',
         'bcrypt'
