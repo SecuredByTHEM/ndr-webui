@@ -1,0 +1,32 @@
+dist: trusty
+sudo: false
+
+language: python
+
+python:
+  - 3.5
+
+addons:
+  postgresql: "9.5"
+
+before_script:
+  - wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/4.2.0/flyway-commandline-4.2.0-linux-x64.tar.gz
+  - tar zxvf flyway-commandline-4.2.0-linux-x64.tar.gz
+  - git clone https://github.com/SecuredByTHEM/ndr-server.git
+  - psql -c 'create database ndr_test;' -U postgres
+  - psql -f ndr-serversql/users.sql -U postgres
+  - cd ndr-server; ../flyway-4.2.0/flyway -url=jdbc:postgresql://localhost/ndr_test migrate
+
+install:
+  - pip install codecov
+  - pip install coverage
+  - pip install git+https://github.com/SecuredByTHEM/ndr-netcfg.git
+  - pip install git+https://github.com/SecuredByTHEM/ndr.git
+  - pip install git+https://github.com/SecuredByTHEM/ndr-server.git
+
+script:
+  - coverage run --source=ndr_webui setup.py test
+
+after_success:
+  - codecov
+
