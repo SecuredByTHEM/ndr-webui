@@ -78,7 +78,7 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(ROOT_USERNAME, admin_user.username)
         self.assertEqual(ROOT_REAL_NAME, admin_user.real_name)
         self.assertEqual(ROOT_EMAIL, admin_user.email)
-        self.assertTrue(admin_user.is_active())
+        self.assertTrue(admin_user.is_active)
         self.assertTrue(admin_user.check_password(ROOT_PW))
 
     def test_get_admin_user_by_email(self):
@@ -90,7 +90,7 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(ROOT_USERNAME, admin_user.username)
         self.assertEqual(ROOT_REAL_NAME, admin_user.real_name)
         self.assertEqual(ROOT_EMAIL, admin_user.email)
-        self.assertTrue(admin_user.is_active())
+        self.assertTrue(admin_user.is_active)
         self.assertTrue(admin_user.check_password(ROOT_PW))
 
     def test_check_invalid_password(self):
