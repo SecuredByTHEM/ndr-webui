@@ -17,11 +17,10 @@
 # First, handle routing for Flask login
 
 from flask import render_template
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
-
-from ndr_webui import app, login_manager
+from flask_login import LoginManager
 
 import psycopg2
 
@@ -30,7 +29,16 @@ import flask_login
 
 import ndr_webui
 
-@app.route('/login', methods=['GET', 'POST'])
+login_blueprint = flask.Blueprint('login', __name__,
+                                  template_folder='templates')
+login_manager = LoginManager()
+
+@login_blueprint.record_once
+def on_load(state):
+    '''Initialized login manager for the app'''
+    login_manager.init_app(state.app)
+
+@login_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
 
@@ -41,17 +49,17 @@ def login():
         # Technically, we could redirect to where the user wanted to go,
         # but since we're a sensitive app, we'll go back to the index vs.
 
-        return flask.redirect(flask.url_for('index'))
+        return flask.redirect(flask.url_for('misc_page.index'))
 
     return render_template('login.html',
                            title='Login',
                            form=form)
 
-@app.route('/logout')
+@login_blueprint.route('/logout')
 def logout():
     flask_login.logout_user()
     flask.flash("Logged Out Successfully")
-    return flask.redirect(flask.url_for("login"))
+    return flask.redirect(flask.url_for(".login"))
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():
@@ -69,13 +77,13 @@ def load_user(user_id):
     except psycopg2.InternalError:
         return None
 
-class LoginForm(Form):
+class LoginForm(FlaskForm):
     '''Validates the login form and checks that a username/password is correct'''
     email = StringField('email', [DataRequired()])
     password = PasswordField('password', [DataRequired()])
 
     def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
+        FlaskForm.__init__(self, *args, **kwargs)
         self.user = None
 
     def validate(self):

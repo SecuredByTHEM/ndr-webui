@@ -55,8 +55,13 @@ def get_db_connection():
 @app.teardown_appcontext
 def db_teardown(error):
     '''Commits or rolls back the DB if everything went as planned'''
+    # If we're in test mode, we need to do a rollback instead of commit
+    no_sql_commit = False
+    if hasattr(app.config, 'NO_SQL_COMMIT'):
+        no_sql_commit = True
+
     if hasattr(g, 'db_conn'):
-        if error is None:
+        if error is None and no_sql_commit is False:
             g.db_conn.commit()
         else:
             g.db_conn.rollback()
