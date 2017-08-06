@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block bootstrap_page %}
     <div class="container">
+
+<!-- Because login doesn't use the standard template, we need to include this seperately -->
+      {% include "snippet/flashes.html" %}
       <form class="form-signin" action='/login' method='post'>
         {{ form.csrf_token }}
         <h2 class="form-signin-heading">Please sign in</h2>

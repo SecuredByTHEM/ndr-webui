@@ -32,6 +32,10 @@ import traceback
 from flask import g, current_app
 import psycopg2
 
+def site_name():
+    '''Returns the name of the site'''
+    return current_app.config.get('SITE_NAME', 'Unknown Site')
+
 def get_ndr_server_config():
     '''Returns the NDR server configuration'''
     return ndr_webui.NSC

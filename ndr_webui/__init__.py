@@ -3,6 +3,8 @@ from flask import Flask
 from flask_login import LoginManager
 
 from ndr_webui.views import misc
+from ndr_webui.views import organizations
+
 from ndr_webui import login
 from ndr_webui import config
 
@@ -18,6 +20,7 @@ def init_app(config_file, testing=False):
     app.config.from_pyfile(config_file)
     app.register_blueprint(misc.misc_page)
     app.register_blueprint(login.login_blueprint)
+    app.register_blueprint(organizations.organizations_page)
     app.teardown_appcontext(config.db_teardown)
 
     if testing is True:

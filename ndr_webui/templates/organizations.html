@@ -1,0 +1,22 @@
+<!-- top level org template -->
+
+{% extends "org_base.html" %} {% block content %}
+
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    {% include "snippet/breadcrumb.html" %}
+    {% include "snippet/flashes.html" %}
+    <div class="row">
+        <h1 class="page-header">Organizations for {{ user.real_name }}</h1>
+        <p>You have access to multiple organizations with data recorders. Select which organization you wish to use below.</p>
+        {% if user.superadmin == True %}
+        <p>You are a super-administrator and may access any organization</p>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {%include "snippet/org_table.html" %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

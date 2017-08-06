@@ -7,13 +7,6 @@ from flask_login import login_required
 misc_page = flask.Blueprint('misc_page', __name__,
                             template_folder='templates')
 
-@misc_page.route('/')
-@misc_page.route('/index')
-@login_required
-def index():
-    return render_template('index.html',
-                           title='Home')
-
 # Site Overview
 @misc_page.route('/site/<site_id>')
 @login_required

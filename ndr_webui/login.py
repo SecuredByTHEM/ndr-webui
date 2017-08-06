@@ -44,12 +44,12 @@ def login():
 
     if form.validate_on_submit():
         flask_login.login_user(form.user)
-        flask.flash("Logged In Successfully")
+        flask.flash("Logged In Successfully", 'success')
 
         # Technically, we could redirect to where the user wanted to go,
         # but since we're a sensitive app, we'll go back to the index vs.
 
-        return flask.redirect(flask.url_for('misc_page.index'))
+        return flask.redirect(flask.url_for('organizations.index'))
 
     return render_template('login.html',
                            title='Login',
@@ -58,7 +58,7 @@ def login():
 @login_blueprint.route('/logout')
 def logout():
     flask_login.logout_user()
-    flask.flash("Logged Out Successfully")
+    flask.flash("Logged Out Successfully", 'success')
     return flask.redirect(flask.url_for(".login"))
 
 @login_manager.unauthorized_handler
@@ -94,13 +94,13 @@ class LoginForm(FlaskForm):
         try:
             user = ndr_webui.User.get_by_email(nsc, self.email.data, db_conn=db_conn)
         except psycopg2.InternalError:
-            flask.flash('1: Unknown email/password')
+            flask.flash('1: Unknown email/password', 'danger')
             # Reset the DB connection
             db_conn.rollback()
             return False
 
         if user.check_password(self.password.data) is False:
-            flask.flash('Unknown email/password')
+            flask.flash('Unknown email/password', 'danger')
             return False
 
         self.user = user

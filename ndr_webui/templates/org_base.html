@@ -1,0 +1,16 @@
+{% extends "navbar.html" %}
+{% block localnav %}
+
+{% set site_navigation_bar = [
+    ( url_for('organizations.index', site_id=site_id), 'overview', 'Organizations', false),
+] -%}
+
+{% set active_page = active_page|default('overview') -%}
+
+<ul class="nav nav-sidebar">
+     {% for href, id, caption, recessed in site_navigation_bar %}
+     <li{% if id == active_page %} class="active"{% endif%} {%if recessed == true %} style="margin-left:3em" {% endif %}><a href="{{ href|e }}">{{ caption|e }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
