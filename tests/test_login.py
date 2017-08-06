@@ -48,3 +48,12 @@ class TestLogin(unittest.TestCase):
             tests.common.create_admin_user(self)
             rv = tests.common.login(self, tests.common.ROOT_EMAIL, tests.common.ROOT_PW)
             self.assertIn(b"Logged In Successfully", rv.data)
+
+    def test_logout(self):
+        '''Tests that logging out works successfully'''
+        with self.flask_app.test_request_context():
+            tests.common.create_admin_user(self)
+            tests.common.login(self, tests.common.ROOT_EMAIL, tests.common.ROOT_PW)
+            rv = tests.common.logout(self)
+            self.assertIn(b"Logged Out", rv.data)
+        

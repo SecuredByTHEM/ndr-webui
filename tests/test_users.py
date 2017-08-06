@@ -99,3 +99,30 @@ class TestUsers(unittest.TestCase):
                               ndr_webui.NSC,
                               1337,
                               db_conn=db_conn)
+
+    def test_get_organizations_for_user(self):
+        '''Tests that we can get all organizations for a user'''
+        with self.flask_app.app_context():
+            nsc = ndr_webui.config.get_ndr_server_config()
+            db_conn = ndr_webui.config.get_db_connection()
+
+            # First we need to create a test organization
+            org = ndr_server.Organization.create(
+                nsc,
+                "Test Org",
+                db_conn=db_conn
+            )
+
+            # The admin is a superuser, we should see all organizations
+            pg_id = tests.common.create_admin_user(self)
+            admin_user = ndr_webui.User.get_by_id(ndr_webui.NSC,
+                                                  pg_id,
+                                                  db_conn=db_conn)
+            user_orgs = admin_user.get_organizations_for_user(db_conn=db_conn)
+
+            # If we're running on an existing DB, we might get more than one
+            self.assertGreaterEqual(len(user_orgs), 1)
+
+            # Make sure our test organization is in there
+            self.assertIn(org, user_orgs)
+

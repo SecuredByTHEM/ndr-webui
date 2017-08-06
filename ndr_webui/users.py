@@ -94,3 +94,17 @@ class User(object):
             return True
 
         return False
+
+    def get_organizations_for_user(self, db_conn=None):
+        '''Retrieves all organizations this user can access and returns a list of them'''
+
+        cursor = self.nsc.database.run_procedure("webui.get_organizations_for_user",
+                                                 [self.pg_id],
+                                                 existing_db_conn=db_conn)
+        organizations = []
+        for record in cursor.fetchall():
+            organizations.append(
+                ndr_server.Organization.from_dict(self.nsc, record)
+            )
+
+        return organizations

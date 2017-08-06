@@ -40,6 +40,10 @@ def create_admin_user(self):
         "admin.activate_user", [root_userid], db_connection
     )
 
+    ndr_webui.NSC.database.run_procedure(
+        "admin.make_user_superadmin", [root_userid], db_connection
+    )
+
     return root_userid
 
 def login(self, email, password):
