@@ -27,20 +27,13 @@ import logging
 
 import ndr_webui
 import ndr_server
-from ndr_webui import app
+import traceback
 
-from flask import g
-
-def init_ndr_server_config():
-    '''Sets up the NDR server config on first run if it's not already'''
-    ndr_webui.NSC = ndr_server.Config(app.logger, app.config['NDR_SERVER_CONFIG'])
-    ndr_webui.NSC.logger.info("Initialized NSC Configuration")
+from flask import g, current_app
+import psycopg2
 
 def get_ndr_server_config():
     '''Returns the NDR server configuration'''
-    if ndr_webui.NSC is None:
-        init_ndr_server_config()
-
     return ndr_webui.NSC
 
 def get_db_connection():
@@ -49,19 +42,22 @@ def get_db_connection():
     if not hasattr(g, 'db_conn'):
         nsc = get_ndr_server_config()
         g.db_conn = nsc.database.get_connection()
-
     return g.db_conn
 
-@app.teardown_appcontext
 def db_teardown(error):
     '''Commits or rolls back the DB if everything went as planned'''
+
     # If we're in test mode, we need to do a rollback instead of commit
-    no_sql_commit = False
-    if hasattr(app.config, 'NO_SQL_COMMIT'):
-        no_sql_commit = True
+    nsc = get_ndr_server_config()
+    no_sql_commit = current_app.config.get('NO_SQL_COMMIT', False)
 
     if hasattr(g, 'db_conn'):
         if error is None and no_sql_commit is False:
             g.db_conn.commit()
         else:
+            nsc.logger.info("DB Rollback")
             g.db_conn.rollback()
+
+        # Return the connection to the pool if it's open
+        if g.db_conn.closed == 0:
+            nsc.database.return_connection(g.db_conn)

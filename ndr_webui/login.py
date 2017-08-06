@@ -93,7 +93,7 @@ class LoginForm(FlaskForm):
 
         try:
             user = ndr_webui.User.get_by_email(nsc, self.email.data, db_conn=db_conn)
-        except psycopg2.InternalError as e:
+        except psycopg2.InternalError:
             flask.flash('1: Unknown email/password')
             # Reset the DB connection
             db_conn.rollback()

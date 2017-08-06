@@ -23,12 +23,12 @@ import psycopg2
 import bcrypt
 import ndr_server
 import ndr_webui
-from ndr_webui import app
 
 import tests.common
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_CONFIG = THIS_DIR + "/test_config.yml"
+TEST_FLASK_CONFIG = THIS_DIR + "/flask_test_config.cfg"
 
 class TestLogin(unittest.TestCase):
     '''Tests login and log out behaviors'''
@@ -36,23 +36,15 @@ class TestLogin(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Setup Flask basic configuration
-        app.testing = True
-        app.config['WTF_CSRF_ENABLED'] = False
-        app.config['NDR_SERVER_CONFIG'] = TEST_CONFIG
-        app.config['NO_SQL_COMMIT'] = True
-        cls.app = app.test_client()
-
-        # Reinitialize NSC context with the test config
-        ndr_webui.config.init_ndr_server_config()
-
-    @classmethod
-    def tearDownClass(cls):
-        ndr_webui.NSC.database.close()
+        flask_app = ndr_webui.init_app(testing=True,
+                                       config_file=TEST_FLASK_CONFIG)
+        cls.flask_app = flask_app
+        cls.app = flask_app.test_client()
 
     def test_login(self):
         '''Tests logging in as the admin user'''
 
-        with app.test_request_context():
+        with self.flask_app.test_request_context():
             tests.common.create_admin_user(self)
             rv = tests.common.login(self, tests.common.ROOT_EMAIL, tests.common.ROOT_PW)
             self.assertIn(b"Logged In Successfully", rv.data)
