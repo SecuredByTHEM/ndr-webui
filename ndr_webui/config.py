@@ -48,28 +48,11 @@ def get_common_variables(title):
     nsc = get_ndr_server_config()
     db_conn = get_db_connection()
 
-    print(db_conn)
-    print("Current USER ID is " + str(current_user.get_id()))
-
     user = None
     if current_user.get_id() is not None:
-        # Retrieve our user
-        import pprint
-
-        cur = db_conn.cursor()
-        user_id = current_user.get_id()
-        cur.execute("SELECT webui.select_user_by_id(%s)", (user_id,))
-        pprint.pprint(cur.fetchall())
-        cur.close()
-
-        pprint.pprint(nsc.database.run_procedure_fetchone(
-                                                        "webui.select_user_by_id",
-                                                        [user_id],
-                                                        existing_db_conn=db_conn))
-
         user = ndr_webui.User.get_by_id(
             nsc,
-            user_id,
+            current_user.get_id(),
             db_conn=db_conn
         )
 

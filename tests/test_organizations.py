@@ -30,8 +30,8 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_CONFIG = THIS_DIR + "/test_config.yml"
 TEST_FLASK_CONFIG = THIS_DIR + "/flask_test_config.cfg"
 
-class TestLogin(unittest.TestCase):
-    '''Tests login and log out behaviors'''
+class TestOrganizations(unittest.TestCase):
+    '''Tests organization codepaths'''
 
     @classmethod
     def setUpClass(cls):
@@ -41,21 +41,22 @@ class TestLogin(unittest.TestCase):
         cls.flask_app = flask_app
         cls.app = flask_app.test_client()
 
-    def test_login(self):
-        '''Tests logging in as the admin user'''
+    def test_organization_index(self):
+        '''Tests the organization index'''
 
         with self.flask_app.app_context():
+            # For these tests, we need to create the admin user, and a test organization
             tests.common.create_admin_user(self)
+            nsc = ndr_webui.config.get_ndr_server_config()
+            db_conn = ndr_webui.config.get_db_connection()
+            ndr_server.Organization.create(nsc, "My Testing Organization", db_conn)
+
+            # Now login, pull the page, and see if its there
             rv = tests.common.login(self, tests.common.ROOT_EMAIL, tests.common.ROOT_PW)
             self.assertIn(b"Logged In Successfully", rv.data)
 
-    def test_logout(self):
-        '''Tests that logging out works successfully'''
-        with self.flask_app.test_request_context():
-            tests.common.create_admin_user(self)
-            rv = tests.common.login(self, tests.common.ROOT_EMAIL, tests.common.ROOT_PW)
-            rv = tests.common.logout(self)
-            self.assertIn(b"Logged Out", rv.data)
+            rv = self.app.get('/organizations',follow_redirects=True)
+            self.assertIn(b"My Testing Organization", rv.data)
 
 if __name__ == "__main__":
     unittest.main()

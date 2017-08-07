@@ -97,7 +97,7 @@ class LoginForm(FlaskForm):
         try:
             user = ndr_webui.User.get_by_email(nsc, self.email.data, db_conn=db_conn)
         except psycopg2.InternalError:
-            flask.flash('1: Unknown email/password', 'danger')
+            flask.flash('Unknown email/password', 'danger')
             return False
 
         if user.check_password(self.password.data) is False:
