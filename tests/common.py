@@ -25,23 +25,24 @@ import bcrypt
 import ndr_webui
 
 def create_admin_user(self):
+    nsc = ndr_webui.config.get_ndr_server_config()
     db_connection = ndr_webui.config.get_db_connection()
 
     crypted_pw = str(bcrypt.hashpw(bytes(ROOT_PW, 'utf-8'), bcrypt.gensalt()), 'utf-8')
 
     # We need to create the root user account which can manipulate the other ones
-    root_userid = ndr_webui.NSC.database.run_procedure_fetchone(
+    root_userid = nsc.database.run_procedure_fetchone(
         "admin.create_user", [ROOT_USERNAME, ROOT_EMAIL, crypted_pw, ROOT_REAL_NAME],
-        db_connection
+        existing_db_conn=db_connection
     )[0]
 
     # Activate the user, then make it a super-admin
-    ndr_webui.NSC.database.run_procedure(
-        "admin.activate_user", [root_userid], db_connection
+    nsc.database.run_procedure(
+        "admin.activate_user", [root_userid], existing_db_conn=db_connection
     )
 
-    ndr_webui.NSC.database.run_procedure(
-        "admin.make_user_superadmin", [root_userid], db_connection
+    nsc.database.run_procedure(
+        "admin.make_user_superadmin", [root_userid], existing_db_conn=db_connection
     )
 
     return root_userid

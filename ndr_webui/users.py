@@ -35,7 +35,7 @@ class User(object):
         return user_obj
 
     @classmethod
-    def get_by_username(cls, nsc, username, db_conn=None):
+    def get_by_username(cls, nsc, username, db_conn):
         '''Gets a user account by email address'''
 
         return cls.from_dict(nsc,
@@ -45,7 +45,7 @@ class User(object):
                                  existing_db_conn=db_conn))
 
     @classmethod
-    def get_by_email(cls, nsc, email, db_conn=None):
+    def get_by_email(cls, nsc, email, db_conn):
         '''Gets a user account by email address'''
 
         return cls.from_dict(nsc,
@@ -55,7 +55,7 @@ class User(object):
                                  existing_db_conn=db_conn))
 
     @classmethod
-    def get_by_id(cls, nsc, user_id, db_conn=None):
+    def get_by_id(cls, nsc, user_id, db_conn):
         '''Gets a user by ID number'''
 
         return cls.from_dict(nsc,

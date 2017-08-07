@@ -30,7 +30,59 @@ import ndr_server
 import traceback
 
 from flask import g, current_app
+from flask_login import current_user
+
 import psycopg2
+
+import collections
+
+ViewCommonVariables = collections.namedtuple(
+    'ViewCommonVariables', ['nsc', 'db_conn', 'user', 'title']
+)
+
+def get_common_variables(title):
+    '''Most of the views on the site requires a bunch of common variables such as the current
+    user and such. This returns a tuple with NSC, the user, formatted title, and the DB
+    connection'''
+
+    nsc = get_ndr_server_config()
+    db_conn = get_db_connection()
+
+    print(db_conn)
+    print("Current USER ID is " + str(current_user.get_id()))
+
+    user = None
+    if current_user.get_id() is not None:
+        # Retrieve our user
+        import pprint
+
+        cur = db_conn.cursor()
+        user_id = current_user.get_id()
+        cur.execute("SELECT webui.select_user_by_id(%s)", (user_id,))
+        pprint.pprint(cur.fetchall())
+        cur.close()
+
+        pprint.pprint(nsc.database.run_procedure_fetchone(
+                                                        "webui.select_user_by_id",
+                                                        [user_id],
+                                                        existing_db_conn=db_conn))
+
+        user = ndr_webui.User.get_by_id(
+            nsc,
+            user_id,
+            db_conn=db_conn
+        )
+
+    page_title = ndr_webui.config.site_name() + " - " + title
+
+    vcv = ViewCommonVariables(
+        nsc=nsc,
+        db_conn=db_conn,
+        user=user,
+        title=page_title
+    )
+
+    return vcv
 
 def site_name():
     '''Returns the name of the site'''
@@ -59,7 +111,6 @@ def db_teardown(error):
         if error is None and no_sql_commit is False:
             g.db_conn.commit()
         else:
-            nsc.logger.info("DB Rollback")
             g.db_conn.rollback()
 
         # Return the connection to the pool if it's open

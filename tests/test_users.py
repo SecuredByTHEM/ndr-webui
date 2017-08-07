@@ -56,9 +56,9 @@ class TestUsers(unittest.TestCase):
                                                   pg_id,
                                                   db_conn=db_conn)
 
-            self.assertEqual(ROOT_USERNAME, admin_user.username)
-            self.assertEqual(ROOT_REAL_NAME, admin_user.real_name)
-            self.assertEqual(ROOT_EMAIL, admin_user.email)
+            self.assertEqual(tests.common.ROOT_USERNAME, admin_user.username)
+            self.assertEqual(tests.common.ROOT_REAL_NAME, admin_user.real_name)
+            self.assertEqual(tests.common.ROOT_EMAIL, admin_user.email)
             self.assertTrue(admin_user.is_active)
             self.assertTrue(admin_user.check_password(ROOT_PW))
 
@@ -72,9 +72,9 @@ class TestUsers(unittest.TestCase):
                                                      ROOT_EMAIL,
                                                      db_conn=db_conn)
 
-            self.assertEqual(ROOT_USERNAME, admin_user.username)
-            self.assertEqual(ROOT_REAL_NAME, admin_user.real_name)
-            self.assertEqual(ROOT_EMAIL, admin_user.email)
+            self.assertEqual(tests.common.ROOT_USERNAME, admin_user.username)
+            self.assertEqual(tests.common.ROOT_REAL_NAME, admin_user.real_name)
+            self.assertEqual(tests.common.ROOT_EMAIL, admin_user.email)
             self.assertTrue(admin_user.is_active)
             self.assertTrue(admin_user.check_password(ROOT_PW))
 

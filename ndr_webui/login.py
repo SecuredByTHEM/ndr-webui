@@ -40,7 +40,10 @@ def on_load(state):
 
 @login_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
+    '''Display and generate the login form'''
     form = LoginForm()
+
+    vcv = ndr_webui.config.get_common_variables("Login")
 
     if form.validate_on_submit():
         flask_login.login_user(form.user)
@@ -52,7 +55,7 @@ def login():
         return flask.redirect(flask.url_for('organizations.index'))
 
     return render_template('login.html',
-                           title='Login',
+                           vcv=vcv,
                            form=form)
 
 @login_blueprint.route('/logout')
@@ -95,8 +98,6 @@ class LoginForm(FlaskForm):
             user = ndr_webui.User.get_by_email(nsc, self.email.data, db_conn=db_conn)
         except psycopg2.InternalError:
             flask.flash('1: Unknown email/password', 'danger')
-            # Reset the DB connection
-            db_conn.rollback()
             return False
 
         if user.check_password(self.password.data) is False:

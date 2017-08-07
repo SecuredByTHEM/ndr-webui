@@ -22,7 +22,6 @@ import flask
 from flask import render_template
 from flask_login import login_required
 
-from flask_login import current_user
 from flask import current_app
 
 organizations_page = flask.Blueprint('organizations', __name__,
@@ -32,23 +31,11 @@ organizations_page = flask.Blueprint('organizations', __name__,
 @login_required
 def index():
     '''Displays the master list of organizations'''
-    nsc = ndr_webui.config.get_ndr_server_config()
-    db_conn = ndr_webui.config.get_db_connection()
+    vcv = ndr_webui.config.get_common_variables("Organizations")
 
-    # Retrieve our user
-    user = ndr_webui.User.get_by_id(
-        nsc,
-        current_user.get_id(),
-        db_conn=db_conn
-    )
-
-    page_title = ndr_webui.config.site_name() + " - Organizations"
-
-    org_list = user.get_organizations_for_user()
-    nsc.logger.info(org_list[0].name)
+    org_list = vcv.user.get_organizations_for_user(db_conn=vcv.db_conn)
     return render_template('organizations.html',
-                           title=page_title,
-                           user=user,
+                           vcv=vcv,
                            organizations=org_list)
 
 @organizations_page.route('/organization/<org_id>')

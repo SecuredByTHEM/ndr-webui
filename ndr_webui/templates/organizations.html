@@ -6,9 +6,9 @@
     {% include "snippet/breadcrumb.html" %}
     {% include "snippet/flashes.html" %}
     <div class="row">
-        <h1 class="page-header">Organizations for {{ user.real_name }}</h1>
+        <h1 class="page-header">Organizations for {{ vcv.user.real_name }}</h1>
         <p>You have access to multiple organizations with data recorders. Select which organization you wish to use below.</p>
-        {% if user.superadmin == True %}
+        {% if vcv.user.superadmin == True %}
         <p>You are a super-administrator and may access any organization</p>
         {% endif %}
     </div>
