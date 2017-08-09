@@ -76,7 +76,7 @@ def load_user(user_id):
 
     # Specification says this has to return none, not return an exception so
     try:
-        return ndr_webui.User.get_by_id(nsc, user_id, db_conn=db_conn)
+        return ndr_webui.User.read_by_id(nsc, user_id, db_conn=db_conn)
     except psycopg2.InternalError:
         return None
 
@@ -95,7 +95,7 @@ class LoginForm(FlaskForm):
         db_conn = ndr_webui.config.get_db_connection()
 
         try:
-            user = ndr_webui.User.get_by_email(nsc, self.email.data, db_conn=db_conn)
+            user = ndr_webui.User.read_by_email(nsc, self.email.data, db_conn=db_conn)
         except psycopg2.InternalError:
             flask.flash('Unknown email/password', 'danger')
             return False

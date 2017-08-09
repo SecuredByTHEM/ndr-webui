@@ -30,8 +30,8 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_CONFIG = THIS_DIR + "/test_config.yml"
 TEST_FLASK_CONFIG = THIS_DIR + "/flask_test_config.cfg"
 
-class TestOrganizations(unittest.TestCase):
-    '''Tests organization codepaths'''
+class TestOrganizationsView(unittest.TestCase):
+    '''Tests organization view codepaths'''
 
     @classmethod
     def setUpClass(cls):

@@ -21,7 +21,13 @@ ROOT_PW = "rootpassword"
 ROOT_EMAIL = "test_user@themtests.com"
 ROOT_REAL_NAME = "Admin Test User"
 
+NO_ACL_USER = "noacl"
+NO_ACL_PASSWORD = "noaclpassword"
+NO_ACL_EMAIL = "noacl@noacl.com"
+NO_ACL_REAL_NAME = "No ACL magic here"
+
 import bcrypt
+import ndr_server
 import ndr_webui
 
 def create_admin_user(self):
@@ -45,7 +51,35 @@ def create_admin_user(self):
         "admin.make_user_superadmin", [root_userid], existing_db_conn=db_connection
     )
 
-    return root_userid
+    return ndr_webui.User.read_by_id(nsc, root_userid, db_connection)
+
+def create_unprivilleged_user(self, admin_user):
+    '''Creates an unprivlleged user for ACL tests'''
+
+    nsc = ndr_webui.config.get_ndr_server_config()
+    db_conn = ndr_webui.config.get_db_connection()
+
+    # Get the admin user obj
+    new_user = ndr_webui.User.create(
+        nsc, admin_user, NO_ACL_USER, NO_ACL_EMAIL, NO_ACL_PASSWORD, NO_ACL_REAL_NAME,
+        db_conn
+    )
+
+    return new_user
+
+def create_organization(self, org_name):
+    '''Creates an organization for testing purposes'''
+    nsc = ndr_webui.config.get_ndr_server_config()
+    db_conn = ndr_webui.config.get_db_connection()
+
+    # First we need to create a test organization
+    org = ndr_server.Organization.create(
+        nsc,
+        org_name,
+        db_conn=db_conn
+    )
+
+    return org
 
 def login(self, email, password):
     return self.app.post('/login', data=dict(

@@ -1,5 +1,7 @@
 '''Users who access the WebUI component of NDR'''
 
+from enum import Enum
+
 import bcrypt
 import ndr_webui
 import ndr_server
@@ -35,7 +37,7 @@ class User(object):
         return user_obj
 
     @classmethod
-    def get_by_username(cls, nsc, username, db_conn):
+    def read_by_username(cls, nsc, username, db_conn):
         '''Gets a user account by email address'''
 
         return cls.from_dict(nsc,
@@ -45,7 +47,7 @@ class User(object):
                                  existing_db_conn=db_conn))
 
     @classmethod
-    def get_by_email(cls, nsc, email, db_conn):
+    def read_by_email(cls, nsc, email, db_conn):
         '''Gets a user account by email address'''
 
         return cls.from_dict(nsc,
@@ -55,7 +57,7 @@ class User(object):
                                  existing_db_conn=db_conn))
 
     @classmethod
-    def get_by_id(cls, nsc, user_id, db_conn):
+    def read_by_id(cls, nsc, user_id, db_conn):
         '''Gets a user by ID number'''
 
         return cls.from_dict(nsc,
@@ -104,7 +106,42 @@ class User(object):
         organizations = []
         for record in cursor.fetchall():
             organizations.append(
-                ndr_server.Organization.from_dict(self.nsc, record)
+                ndr_webui.OrganizationACL.from_dict(self.nsc, record)
             )
 
         return organizations
+
+    @staticmethod
+    def check_user_permissions_for_action(nsc, user, action, db_conn):
+        '''Checks that a user can perform an administrative action'''
+
+        # Checks if we can perform an action, raises exception if we can't
+        nsc.database.run_procedure("webui.check_user_permissions_for_action",
+                                   [user.pg_id, action.value],
+                                   existing_db_conn=db_conn)
+        return True
+
+    @classmethod
+    def create(cls, nsc, creating_user, username, email, password, real_name, db_conn):
+        '''Creates a new user. This action must be authorized by an admin user or
+           similar'''
+
+        # Check that our creating user can actually do this
+        User.check_user_permissions_for_action(
+            nsc, creating_user, UserAdminActions.CREATE_USER, db_conn
+        )
+
+        # We're good, crypt the password and create the user object
+        crypted_pw = str(bcrypt.hashpw(bytes(password, 'utf-8'), bcrypt.gensalt()), 'utf-8')
+
+        pg_id = nsc.database.run_procedure_fetchone(
+            "admin.create_user",
+            [username, email, crypted_pw, real_name],
+            existing_db_conn=db_conn
+        )[0]
+
+        return cls.read_by_id(nsc, pg_id, db_conn)
+
+class UserAdminActions(Enum):
+    '''Admin actions a user can take'''
+    CREATE_USER = 'create_user'

@@ -50,7 +50,7 @@ def get_common_variables(title):
 
     user = None
     if current_user.get_id() is not None:
-        user = ndr_webui.User.get_by_id(
+        user = ndr_webui.User.read_by_id(
             nsc,
             current_user.get_id(),
             db_conn=db_conn

@@ -29,11 +29,6 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_CONFIG = THIS_DIR + "/test_config.yml"
 TEST_FLASK_CONFIG = THIS_DIR + "/flask_test_config.cfg"
 
-ROOT_USERNAME = "admin"
-ROOT_PW = "rootpassword"
-ROOT_EMAIL = "test_user@themtests.com"
-ROOT_REAL_NAME = "Admin Test User"
-
 
 class TestUsers(unittest.TestCase):
     '''Test user object behaviors'''
@@ -49,18 +44,18 @@ class TestUsers(unittest.TestCase):
     def test_get_admin_user(self):
         '''Tests getting the admin user'''
         with self.flask_app.app_context():
-            pg_id = tests.common.create_admin_user(self)
+            user = tests.common.create_admin_user(self)
             db_conn = ndr_webui.config.get_db_connection()
 
-            admin_user = ndr_webui.User.get_by_id(ndr_webui.NSC,
-                                                  pg_id,
-                                                  db_conn=db_conn)
+            admin_user = ndr_webui.User.read_by_id(ndr_webui.NSC,
+                                                   user.pg_id,
+                                                   db_conn=db_conn)
 
             self.assertEqual(tests.common.ROOT_USERNAME, admin_user.username)
             self.assertEqual(tests.common.ROOT_REAL_NAME, admin_user.real_name)
             self.assertEqual(tests.common.ROOT_EMAIL, admin_user.email)
             self.assertTrue(admin_user.is_active)
-            self.assertTrue(admin_user.check_password(ROOT_PW))
+            self.assertTrue(admin_user.check_password(tests.common.ROOT_PW))
 
     def test_get_admin_user_by_email(self):
         '''Tests getting a user by email address'''
@@ -68,25 +63,25 @@ class TestUsers(unittest.TestCase):
             tests.common.create_admin_user(self)
             db_conn = ndr_webui.config.get_db_connection()
 
-            admin_user = ndr_webui.User.get_by_email(ndr_webui.NSC,
-                                                     ROOT_EMAIL,
-                                                     db_conn=db_conn)
+            admin_user = ndr_webui.User.read_by_email(ndr_webui.NSC,
+                                                      tests.common.ROOT_EMAIL,
+                                                      db_conn=db_conn)
 
             self.assertEqual(tests.common.ROOT_USERNAME, admin_user.username)
             self.assertEqual(tests.common.ROOT_REAL_NAME, admin_user.real_name)
             self.assertEqual(tests.common.ROOT_EMAIL, admin_user.email)
             self.assertTrue(admin_user.is_active)
-            self.assertTrue(admin_user.check_password(ROOT_PW))
+            self.assertTrue(admin_user.check_password(tests.common.ROOT_PW))
 
     def test_check_invalid_password(self):
         '''Tests that we properly error out on invalid passwords'''
         with self.flask_app.app_context():
-            pg_id = tests.common.create_admin_user(self)
+            user = tests.common.create_admin_user(self)
             db_conn = ndr_webui.config.get_db_connection()
 
-            admin_user = ndr_webui.User.get_by_id(ndr_webui.NSC,
-                                                  pg_id,
-                                                  db_conn=db_conn)
+            admin_user = ndr_webui.User.read_by_id(ndr_webui.NSC,
+                                                   user.pg_id,
+                                                   db_conn=db_conn)
             self.assertFalse(admin_user.check_password("not the right PW"))
 
     def test_invalid_user(self):
@@ -95,7 +90,7 @@ class TestUsers(unittest.TestCase):
             db_conn = ndr_webui.config.get_db_connection()
 
             self.assertRaises(psycopg2.InternalError,
-                              ndr_webui.User.get_by_id,
+                              ndr_webui.User.read_by_id,
                               ndr_webui.NSC,
                               1337,
                               db_conn=db_conn)
@@ -114,10 +109,10 @@ class TestUsers(unittest.TestCase):
             )
 
             # The admin is a superuser, we should see all organizations
-            pg_id = tests.common.create_admin_user(self)
-            admin_user = ndr_webui.User.get_by_id(ndr_webui.NSC,
-                                                  pg_id,
-                                                  db_conn=db_conn)
+            user = tests.common.create_admin_user(self)
+            admin_user = ndr_webui.User.read_by_id(ndr_webui.NSC,
+                                                   user.pg_id,
+                                                   db_conn=db_conn)
             user_orgs = admin_user.get_organizations_for_user(db_conn=db_conn)
 
             # If we're running on an existing DB, we might get more than one
@@ -126,3 +121,35 @@ class TestUsers(unittest.TestCase):
             # Make sure our test organization is in there
             self.assertIn(org, user_orgs)
 
+    def test_creating_new_user(self):
+        '''Tests new user creation'''
+        with self.flask_app.app_context():
+            admin_user = tests.common.create_admin_user(self)
+            new_user = tests.common.create_unprivilleged_user(self, admin_user)
+
+            self.assertEqual(tests.common.NO_ACL_USER, new_user.username)
+            self.assertEqual(tests.common.NO_ACL_REAL_NAME, new_user.real_name)
+            self.assertEqual(tests.common.NO_ACL_EMAIL, new_user.email)
+            self.assertTrue(new_user.check_password(
+                tests.common.NO_ACL_PASSWORD))
+
+    def test_acl_failure_create_user(self):
+        '''Tests that user creation fails with unprivilleged user'''
+        with self.flask_app.app_context():
+            nsc = ndr_webui.config.get_ndr_server_config()
+            db_conn = ndr_webui.config.get_db_connection()
+
+            admin_user = tests.common.create_admin_user(self)
+            new_user = tests.common.create_unprivilleged_user(self, admin_user)
+
+            self.assertRaises(
+                psycopg2.InternalError,
+                ndr_webui.User.create,
+                nsc,
+                new_user,
+                "failuser",
+                "failuser@fail.com",
+                "someuncryptedpw",
+                "Fail User",
+                db_conn
+            )
