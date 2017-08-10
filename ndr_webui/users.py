@@ -66,6 +66,27 @@ class User(object):
                                  [user_id],
                                  existing_db_conn=db_conn))
 
+    @classmethod
+    def create(cls, nsc, creating_user, username, email, password, real_name, db_conn):
+        '''Creates a new user. This action must be authorized by an admin user or
+           similar'''
+
+        # Check that our creating user can actually do this
+        User.check_user_permissions_for_action(
+            nsc, creating_user, UserAdminActions.CREATE_USER, db_conn
+        )
+
+        # We're good, crypt the password and create the user object
+        crypted_pw = str(bcrypt.hashpw(bytes(password, 'utf-8'), bcrypt.gensalt()), 'utf-8')
+
+        pg_id = nsc.database.run_procedure_fetchone(
+            "admin.create_user",
+            [username, email, crypted_pw, real_name],
+            existing_db_conn=db_conn
+        )[0]
+
+        return cls.read_by_id(nsc, pg_id, db_conn)
+
     @property
     def is_active(self):
         '''Is the user account active and validated?'''
@@ -97,6 +118,16 @@ class User(object):
 
         return False
 
+    @staticmethod
+    def check_user_permissions_for_action(nsc, user, action, db_conn):
+        '''Checks that a user can perform an administrative action'''
+
+        # Checks if we can perform an action, raises exception if we can't
+        nsc.database.run_procedure("webui.check_user_permissions_for_action",
+                                   [user.pg_id, action.value],
+                                   existing_db_conn=db_conn)
+        return True
+
     def get_organizations_for_user(self, db_conn=None):
         '''Retrieves all organizations this user can access and returns a list of them'''
 
@@ -111,36 +142,20 @@ class User(object):
 
         return organizations
 
-    @staticmethod
-    def check_user_permissions_for_action(nsc, user, action, db_conn):
-        '''Checks that a user can perform an administrative action'''
 
-        # Checks if we can perform an action, raises exception if we can't
-        nsc.database.run_procedure("webui.check_user_permissions_for_action",
-                                   [user.pg_id, action.value],
-                                   existing_db_conn=db_conn)
-        return True
+    def get_sites_in_organization_for_user(self, org, db_conn=None):
+        '''Retrieves all sites in an organization this user can access and returns a list of them'''
 
-    @classmethod
-    def create(cls, nsc, creating_user, username, email, password, real_name, db_conn):
-        '''Creates a new user. This action must be authorized by an admin user or
-           similar'''
+        cursor = self.nsc.database.run_procedure("webui.get_sites_in_organization_for_user",
+                                                 [self.pg_id, org.pg_id],
+                                                 db_conn)
+        sites = []
+        for record in cursor.fetchall():
+            sites.append(
+                ndr_server.Site.from_dict(self.nsc, record)
+            )
 
-        # Check that our creating user can actually do this
-        User.check_user_permissions_for_action(
-            nsc, creating_user, UserAdminActions.CREATE_USER, db_conn
-        )
-
-        # We're good, crypt the password and create the user object
-        crypted_pw = str(bcrypt.hashpw(bytes(password, 'utf-8'), bcrypt.gensalt()), 'utf-8')
-
-        pg_id = nsc.database.run_procedure_fetchone(
-            "admin.create_user",
-            [username, email, crypted_pw, real_name],
-            existing_db_conn=db_conn
-        )[0]
-
-        return cls.read_by_id(nsc, pg_id, db_conn)
+        return sites
 
 class UserAdminActions(Enum):
     '''Admin actions a user can take'''

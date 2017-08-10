@@ -26,6 +26,8 @@ from flask import current_app
 
 organizations_page = flask.Blueprint('organizations', __name__,
                                      template_folder='templates')
+
+
 @organizations_page.route('/')
 @organizations_page.route('/organizations')
 @login_required
@@ -38,8 +40,21 @@ def index():
                            vcv=vcv,
                            organizations=org_list)
 
+
 @organizations_page.route('/organization/<org_id>')
 @login_required
 def overview(org_id):
     '''Displays more in-depth information for an organization'''
-    return "Here"
+    vcv = ndr_webui.config.get_common_variables("Sites")
+
+    # Grab the organization via the ACL
+    org = ndr_webui.OrganizationACL.read_by_id(
+        vcv.nsc, vcv.user, org_id, vcv.db_conn)
+
+    # Now grab the list of sites, and then amend the title
+    sites = vcv.user.get_sites_in_organization_for_user(org, vcv.db_conn)
+
+    return render_template('sites.html',
+                           vcv=vcv,
+                           org=org,
+                           sites=sites)

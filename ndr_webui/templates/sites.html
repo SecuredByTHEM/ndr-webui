@@ -1,0 +1,18 @@
+<!-- sites for organization -->
+
+{% extends "org_base.html" %} {% block content %}
+
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    {% include "snippet/breadcrumb.html" %}
+    {% include "snippet/flashes.html" %}
+    <div class="row">
+        <h1 class="page-header">Sites for {{ org.name }}</h1>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            {%include "snippet/site_table.html" %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -153,3 +153,24 @@ class TestUsers(unittest.TestCase):
                 "Fail User",
                 db_conn
             )
+
+    def test_get_sites_for_user(self):
+        '''Tests that we can get all organizations for a user'''
+        with self.flask_app.app_context():
+            db_conn = ndr_webui.config.get_db_connection()
+
+            # First we need to create a test organization
+            org = tests.common.create_organization(self, "test org")
+
+            # And a site
+            site = tests.common.create_site(self, org, "test site")
+
+            # The admin is a superuser, we should see all organizations
+            admin_user = tests.common.create_admin_user(self)
+            user_sites = admin_user.get_sites_in_organization_for_user(org, db_conn)
+
+            # If we're running on an existing DB, we might get more than one
+            self.assertGreaterEqual(len(user_sites), 1)
+
+            # Make sure our test organization is in there
+            self.assertIn(site, user_sites)

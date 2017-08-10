@@ -47,9 +47,7 @@ class TestOrganizationsView(unittest.TestCase):
         with self.flask_app.app_context():
             # For these tests, we need to create the admin user, and a test organization
             tests.common.create_admin_user(self)
-            nsc = ndr_webui.config.get_ndr_server_config()
-            db_conn = ndr_webui.config.get_db_connection()
-            ndr_server.Organization.create(nsc, "My Testing Organization", db_conn)
+            tests.common.create_organization(self, "My Testing Organization")
 
             # Now login, pull the page, and see if its there
             rv = tests.common.login(self, tests.common.ROOT_EMAIL, tests.common.ROOT_PW)
@@ -57,6 +55,29 @@ class TestOrganizationsView(unittest.TestCase):
 
             rv = self.app.get('/organizations',follow_redirects=True)
             self.assertIn(b"My Testing Organization", rv.data)
+
+            # HACK! - determine why this is necessary
+            tests.common.logout(self)
+
+    def test_sites_for_organization_view(self):
+        with self.flask_app.app_context():
+            # For these tests, we need to create the admin user, and a test organization
+            tests.common.create_admin_user(self)
+
+            # Create a test org and site
+            org = tests.common.create_organization(self, "My Testing Organization")
+            tests.common.create_site(self, org, "Some random test site")
+
+            # Now login, pull the page, and see if its there
+            rv = tests.common.login(self, tests.common.ROOT_EMAIL, tests.common.ROOT_PW)
+            self.assertIn(b"Logged In Successfully", rv.data)
+
+            # Build the org URL
+            url = '/organization/' + str(org.pg_id)
+
+            rv = self.app.get(url, follow_redirects=True)
+            self.assertIn(b"Some random test site", rv.data)
+
 
 if __name__ == "__main__":
     unittest.main()

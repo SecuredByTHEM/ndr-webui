@@ -81,6 +81,21 @@ def create_organization(self, org_name):
 
     return org
 
+def create_site(self, org, site_name):
+    '''Creates a site for testing purposes'''
+    nsc = ndr_webui.config.get_ndr_server_config()
+    db_conn = ndr_webui.config.get_db_connection()
+
+    # First we need to create a test organization
+    site = ndr_server.Site.create(
+        nsc,
+        org,
+        site_name,
+        db_conn
+    )
+
+    return site
+
 def login(self, email, password):
     return self.app.post('/login', data=dict(
         email=email,
