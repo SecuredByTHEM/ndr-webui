@@ -36,7 +36,10 @@ def index():
     vcv = ndr_webui.config.get_common_variables("Organizations")
 
     org_list = vcv.user.get_organizations_for_user(db_conn=vcv.db_conn)
+    page_title = ndr_webui.config.site_name() + " - Organizations"
+
     return render_template('organizations.html',
+                           title=page_title,
                            vcv=vcv,
                            organizations=org_list)
 
@@ -53,8 +56,10 @@ def overview(org_id):
 
     # Now grab the list of sites, and then amend the title
     sites = vcv.user.get_sites_in_organization_for_user(org, vcv.db_conn)
+    page_title = ndr_webui.config.site_name() + " - Sites - " + org.name
 
     return render_template('sites.html',
+                           title=page_title,
                            vcv=vcv,
                            org=org,
                            sites=sites)

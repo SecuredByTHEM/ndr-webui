@@ -14,37 +14,39 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-'''Organization objects with ACL controls'''
+'''Handling of site information for the webUI.
+
+See organizations_acl for info on the ACL handling'''
 
 import ndr_server
 
-class OrganizationACL(ndr_server.Organization):
-    '''Handles ACL controls for an organization'''
+class SiteACL(ndr_server.Site):
+    '''Representation of NDR site with access controls'''
     def __init__(self, config):
         self.user = None
-        ndr_server.Organization.__init__(self, config)
+        ndr_server.Site.__init__(self, config)
 
     @staticmethod
-    def check_user_permissions_for_org(nsc, user_id, org_id, db_conn):
+    def check_user_permissions_for_site(nsc, user_id, site_id, db_conn):
         '''Checks that a user can access an organization; raises exception
         if not true'''
-        nsc.database.run_procedure_fetchone("webui.check_organization_acl",
-                                            [user_id, org_id],
+        nsc.database.run_procedure_fetchone("webui.check_site_acl",
+                                            [user_id, site_id],
                                             existing_db_conn=db_conn)
         return True
 
     @classmethod
-    def read_by_id(cls, nsc, user, org_id, db_conn):
+    def read_by_id(cls, nsc, user, site_id, db_conn):
         '''Loads an organization from the database'''
 
         # Check ACL
-        OrganizationACL.check_user_permissions_for_org(
-            nsc, user.pg_id, org_id, db_conn
+        SiteACL.check_user_permissions_for_site(
+            nsc, user.pg_id, site_id, db_conn
         )
 
         # Now load the organization
-        org = super(OrganizationACL, cls).read_by_id(
-            nsc, org_id, db_conn
+        org = super(SiteACL, cls).read_by_id(
+            nsc, site_id, db_conn
         )
 
         # User has to be loaded after the fact
@@ -53,19 +55,19 @@ class OrganizationACL(ndr_server.Organization):
         return org
 
     @classmethod
-    def read_by_name(cls, nsc, user, org_name, db_conn):
+    def read_by_name(cls, nsc, user, site_name, db_conn):
         '''Loads an organization by name from the database subject to ACL checks'''
 
         # This is a little annoying. To check the organization's ACL, we need the org_id,
         # so we need to load the organization first, *then* try read the id
 
         # Now load the organization
-        org = super(OrganizationACL, cls).read_by_name(
-            nsc, org_name, db_conn
+        org = super(SiteACL, cls).read_by_name(
+            nsc, site_name, db_conn
         )
 
         # Check ACL
-        OrganizationACL.check_user_permissions_for_org(
+        SiteACL.check_user_permissions_for_site(
             nsc, user.pg_id, org.pg_id, db_conn
         )
         org.user = user

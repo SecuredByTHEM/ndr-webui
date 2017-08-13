@@ -37,7 +37,7 @@ import psycopg2
 import collections
 
 ViewCommonVariables = collections.namedtuple(
-    'ViewCommonVariables', ['nsc', 'db_conn', 'user', 'title']
+    'ViewCommonVariables', ['nsc', 'db_conn', 'user']
 )
 
 def get_common_variables(title):
@@ -56,13 +56,10 @@ def get_common_variables(title):
             db_conn=db_conn
         )
 
-    page_title = ndr_webui.config.site_name() + " - " + title
-
     vcv = ViewCommonVariables(
         nsc=nsc,
         db_conn=db_conn,
-        user=user,
-        title=page_title
+        user=user
     )
 
     return vcv

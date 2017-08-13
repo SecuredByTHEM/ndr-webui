@@ -2,11 +2,11 @@
 {% block localnav %}
 
 {% set site_navigation_bar = [
-    ( url_for('.site_overview', site_id=site_id), 'overview', 'Site Overview', false),
-    ( url_for('.site_overview', site_id=site_id), 'recorders', 'Recorders', true),
+    ( url_for('.overview', site_id=site_id), 'overview', 'Site Overview', false),
+    ( url_for('.overview', site_id=site_id), 'recorders', 'Recorders', true),
     ( '/nonexist', 'alerts', 'Alerts', true),
-    ( url_for('.site_nmap', site_id=site_id), 'nmap', 'Network Scans', false),
-    ( url_for('.site_syslog', site_id=site_id), 'logs', 'Logs', false),
+    ( '/nonexist', 'nmap', 'Network Scans', false),
+    ( '/nonexist', 'logs', 'Logs', false),
     ( '/nonexist', '.snort_traffic', 'SNORT Traffic Reports', false),
 ] -%}
 

@@ -8,7 +8,7 @@
         <tbody>
             {% for site in sites %}
             <tr>
-                <td><a href="#">
+                <td><a href="{{ url_for('site_info.overview', site_id=site.pg_id) }}">
                 {{site.name}}
                 </a>
                 </td>
