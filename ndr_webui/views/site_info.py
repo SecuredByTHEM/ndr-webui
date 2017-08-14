@@ -33,7 +33,26 @@ site_info = flask.Blueprint('site_info', __name__,
 def overview(site_id):
     '''Renders an overview of the site'''
 
+    # Make sure our input parameters are sane
+    site_id = int(site_id)
+
+    vcv = ndr_webui.config.get_common_variables()
+
+    # Load in the site
+    site = ndr_webui.SiteACL.read_by_id(
+        vcv.nsc, vcv.user, site_id, vcv.db_conn
+    )
+
+    # We need to pull the rest of the information based off the in the database
+
+    recorders = vcv.user.get_recorders_in_site_for_user(
+        site, vcv.db_conn
+    )
+
+    page_title = ndr_webui.config.site_name() + " - Sites Overview For " + site.name
+
     return render_template('site_overview.html',
-                           title='Site Overview',
+                           title=page_title,
                            site_id=site_id,
+                           recorders=recorders,
                            active_page='overview')

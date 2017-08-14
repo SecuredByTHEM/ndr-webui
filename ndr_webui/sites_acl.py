@@ -45,14 +45,14 @@ class SiteACL(ndr_server.Site):
         )
 
         # Now load the organization
-        org = super(SiteACL, cls).read_by_id(
+        site = super(SiteACL, cls).read_by_id(
             nsc, site_id, db_conn
         )
 
         # User has to be loaded after the fact
-        org.user = user
+        site.user = user
 
-        return org
+        return site
 
     @classmethod
     def read_by_name(cls, nsc, user, site_name, db_conn):

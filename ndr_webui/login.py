@@ -43,7 +43,7 @@ def login():
     '''Display and generate the login form'''
     form = LoginForm()
 
-    vcv = ndr_webui.config.get_common_variables("Login")
+    vcv = ndr_webui.config.get_common_variables()
 
     if form.validate_on_submit():
         flask_login.login_user(form.user)
@@ -54,7 +54,9 @@ def login():
 
         return flask.redirect(flask.url_for('organizations.index'))
 
+    page_title = ndr_webui.config.site_name() + " - Login"
     return render_template('login.html',
+                           title=page_title,
                            vcv=vcv,
                            form=form)
 

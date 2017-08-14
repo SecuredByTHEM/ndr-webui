@@ -43,5 +43,7 @@ from ndr_webui import utils
 from ndr_webui.users import User
 from ndr_webui.organizations_acl import OrganizationACL
 from ndr_webui.sites_acl import SiteACL
+from ndr_webui.recorders_acl import RecorderACL
+
 from ndr_webui.table_render import TableRender
 from ndr_webui.table_render import OrganizationsTable

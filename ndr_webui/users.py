@@ -151,10 +151,12 @@ class User(object):
                                                  [self.pg_id],
                                                  existing_db_conn=db_conn)
         organizations = []
-        for record in cursor.fetchall():
-            organizations.append(
-                ndr_webui.OrganizationACL.from_dict(self.nsc, record)
-            )
+        records = cursor.fetchall()
+
+        for record in records:
+            org = ndr_webui.OrganizationACL(self.nsc)
+            org.from_dict(record)
+            organizations.append(org)
 
         return organizations
 
@@ -166,12 +168,29 @@ class User(object):
                                                  [self.pg_id, org.pg_id],
                                                  db_conn)
         sites = []
-        for record in cursor.fetchall():
-            sites.append(
-                ndr_server.Site.from_dict(self.nsc, record)
-            )
+        records = cursor.fetchall()
+        for record in records:
+            site = ndr_webui.SiteACL(self.nsc)
+            site.from_dict(record)
+            sites.append(site)
 
         return sites
+
+    def get_recorders_in_site_for_user(self, site, db_conn=None):
+        '''Retrieves all recorders in an site this user can access and returns a list of them'''
+
+        cursor = self.nsc.database.run_procedure("webui.get_recorders_in_site_for_user",
+                                                 [self.pg_id, site.pg_id],
+                                                 db_conn)
+        recorders = []
+
+        records = cursor.fetchall()
+        for record in records:
+            recorders.append(
+                ndr_webui.RecorderACL.from_dict(self.nsc, record)
+            )
+
+        return recorders
 
 class UserAdminActions(Enum):
     '''Admin actions a user can take'''

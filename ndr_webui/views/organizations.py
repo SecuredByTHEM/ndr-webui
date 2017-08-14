@@ -33,7 +33,7 @@ organizations_page = flask.Blueprint('organizations', __name__,
 @login_required
 def index():
     '''Displays the master list of organizations'''
-    vcv = ndr_webui.config.get_common_variables("Organizations")
+    vcv = ndr_webui.config.get_common_variables()
 
     org_list = vcv.user.get_organizations_for_user(db_conn=vcv.db_conn)
     page_title = ndr_webui.config.site_name() + " - Organizations"
@@ -48,7 +48,10 @@ def index():
 @login_required
 def overview(org_id):
     '''Displays more in-depth information for an organization'''
-    vcv = ndr_webui.config.get_common_variables("Sites")
+    # Make sure our input parameters are sane
+    org_id = int(org_id)
+
+    vcv = ndr_webui.config.get_common_variables()
 
     # Grab the organization via the ACL
     org = ndr_webui.OrganizationACL.read_by_id(

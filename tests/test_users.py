@@ -174,3 +174,27 @@ class TestUsers(unittest.TestCase):
 
             # Make sure our test organization is in there
             self.assertIn(site, user_sites)
+
+    def test_get_recorders_for_user(self):
+        '''Tests that we can get all recorders for a user in a site'''
+        with self.flask_app.app_context():
+            db_conn = ndr_webui.config.get_db_connection()
+
+            # First we need to create a test organization
+            org = tests.common.create_organization(self, "test org")
+
+            # And a site
+            site = tests.common.create_site(self, org, "test site")
+
+            # And now the recorder
+            recorder = tests.common.create_recorder(self, site, "Test Recorder", "ndr_web_test")
+
+            # The admin is a superuser, we should see all organizations
+            admin_user = tests.common.create_admin_user(self)
+            user_recorders = admin_user.get_recorders_in_site_for_user(site, db_conn)
+
+            # If we're running on an existing DB, we might get more than one
+            self.assertGreaterEqual(len(user_recorders), 1)
+
+            # Make sure our test organization is in there
+            self.assertIn(recorder, user_recorders)

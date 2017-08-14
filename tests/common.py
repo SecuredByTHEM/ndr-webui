@@ -96,6 +96,16 @@ def create_site(self, org, site_name):
 
     return site
 
+def create_recorder(self, site, human_name, hostname):
+    '''Creates a test recorder'''
+    nsc = ndr_webui.config.get_ndr_server_config()
+    db_conn = ndr_webui.config.get_db_connection()
+
+    recorder = ndr_server.Recorder.create(
+        nsc, site, human_name, hostname, db_conn)
+
+    return recorder
+
 def login(self, email, password):
     return self.app.post('/login', data=dict(
         email=email,

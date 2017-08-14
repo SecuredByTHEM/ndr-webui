@@ -40,7 +40,7 @@ ViewCommonVariables = collections.namedtuple(
     'ViewCommonVariables', ['nsc', 'db_conn', 'user']
 )
 
-def get_common_variables(title):
+def get_common_variables():
     '''Most of the views on the site requires a bunch of common variables such as the current
     user and such. This returns a tuple with NSC, the user, formatted title, and the DB
     connection'''
